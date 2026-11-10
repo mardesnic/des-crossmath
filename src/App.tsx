@@ -20,6 +20,8 @@ import {
 import { STRINGS, detectLang } from './lib/i18n';
 import { generate, type Level } from './lib/puzzle';
 import { initialSettings, type Settings } from './lib/settings';
+import { popMenu, pushMenu, useBackButton } from './lib/use-back-button';
+import { useCheer } from './lib/use-cheer';
 import { useStoredState } from './lib/use-stored-state';
 import { useWakeLock } from './lib/use-wake-lock';
 
@@ -38,11 +40,21 @@ export default function App() {
     'crossmath-stats',
     initialStats
   );
-  const [view, setView] = useState<View>(game ? 'play' : 'new');
+  const [view, setViewState] = useState<View>(game ? 'play' : 'new');
+  // Menus open over the game, so the phone's Back button closes them.
+  const setView = (next: View) => {
+    if (next === 'play') popMenu();
+    else pushMenu();
+    setViewState(next);
+  };
+  useBackButton(() => {
+    if (game) setViewState('play');
+  });
   const [selection, setSelection] = useState<Selection>({});
   const [wobble, setWobble] = useState<Wobble>();
   const [celebrating, setCelebrating] = useState(false);
   useWakeLock();
+  const cheer = useCheer(settings.sound);
 
   const lang = settings.language === 'auto' ? detectLang() : settings.language;
   const t = STRINGS[lang];
@@ -65,6 +77,7 @@ export default function App() {
     if (next.solved && !game.solved) {
       setStats(recordWin(stats, next));
       setCelebrating(true);
+      cheer();
     }
     const states = lineStates(next);
     const wrong = next.lines.filter(

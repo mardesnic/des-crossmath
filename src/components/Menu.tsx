@@ -97,6 +97,16 @@ export function SettingsView({
             onChange={(language) => setSettings({ ...settings, language })}
           />
         </div>
+
+        <div className='field'>
+          <span>{t.sound}</span>
+          <Segmented
+            options={[true, false]}
+            value={settings.sound}
+            label={(on) => (on ? t.on : t.off)}
+            onChange={(sound) => setSettings({ ...settings, sound })}
+          />
+        </div>
       </section>
 
       <section className='card'>
