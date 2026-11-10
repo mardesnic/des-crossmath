@@ -1,5 +1,3 @@
-import type { Level } from './puzzle';
-
 export const LANGS = ['en', 'hr'] as const;
 export type Lang = (typeof LANGS)[number];
 export type Language = 'auto' | Lang;
@@ -28,7 +26,7 @@ const en = {
   changeLevel: 'Change level',
   // The numbers each level goes up to.
   upTo: (n: number) => `up to ${n}`,
-  level: (l: Level) => `Level ${l}`,
+  level: (n: number) => `Level ${n}`,
   square: (row: number, col: number) => `Row ${row}, column ${col}`,
   empty: 'empty',
   pickTile: 'Pick a tile, then the square it goes in',
@@ -55,7 +53,7 @@ const hr: Strings = {
   nextPuzzle: 'Sljedeća križaljka',
   changeLevel: 'Promijeni razinu',
   upTo: (n: number) => `do ${n}`,
-  level: (l: Level) => `Razina ${l}`,
+  level: (n: number) => `Razina ${n}`,
   square: (row: number, col: number) => `Red ${row}, stupac ${col}`,
   empty: 'prazno',
   pickTile: 'Odaberi pločicu, pa polje u koje ide',

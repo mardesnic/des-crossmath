@@ -141,7 +141,7 @@ describe('generated puzzles', () => {
   it('is quick enough to make on a phone', () => {
     const start = performance.now();
     for (const level of LEVELS) for (let n = 0; n < 20; n++) generate(level);
-    expect((performance.now() - start) / 80).toBeLessThan(25);
+    expect((performance.now() - start) / (LEVELS.length * 20)).toBeLessThan(25);
   });
 });
 

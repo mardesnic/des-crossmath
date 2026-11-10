@@ -55,7 +55,7 @@ export function NewGame({
             key={level}
             className='level'
             onClick={() => onStart(level)}
-            aria-label={`${t.level(level)}: ${RULES[level].ops.map((o) => t.ops[o]).join(', ')}, ${t.upTo(RULES[level].max)}`}
+            aria-label={`${t.level(n + 1)}: ${RULES[level].ops.map((o) => t.ops[o]).join(', ')}, ${t.upTo(RULES[level].max)}`}
           >
             <span className='level__pips' aria-hidden='true'>
               {LEVELS.map((_, k) => (
@@ -109,10 +109,10 @@ export function SettingsView({
             </tr>
           </thead>
           <tbody>
-            {LEVELS.map((level) => (
+            {LEVELS.map((level, n) => (
               <tr key={level}>
                 <th>
-                  {t.level(level)}{' '}
+                  {t.level(n + 1)}{' '}
                   <span className='muted'>
                     {RULES[level].ops.map(show).join(' ')},{' '}
                     {t.upTo(RULES[level].max)}

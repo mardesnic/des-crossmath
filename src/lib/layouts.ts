@@ -68,23 +68,23 @@ export function parse(rows: string[]): Layout {
 export const transpose = (rows: string[]) =>
   rows.map((_, c) => rows.map((r) => r[c]).join(''));
 
-// Shapes for each level, before turning them over.
+// Groups of shapes, from small to big, before turning them over.
 export const SHAPES: string[][][] = [
-  // Level 1: two lines.
+  // 1: two lines.
   [
     ['N?N=N', '?....', 'N....', '=....', 'N....'],
     ['N?N=N', '....?', '....N', '....=', '....N'],
     ['N?N=N', '..?..', '..N..', '..=..', '..N..'],
     ['N....', '?....', 'N?N=N', '=....', 'N....'],
   ],
-  // Level 2: four lines.
+  // 2: four lines.
   [
     ['N?N=N', '?.?..', 'N?N=N', '=.=..', 'N.N..'],
     ['N?N=N', '?...?', 'N?N=N', '=...=', 'N...N'],
     ['N?N=N', '?...?', 'N...N', '=...=', 'N?N=N'],
     ['N?N=N', '..?.?', 'N?N=N', '..=.=', '..N.N'],
   ],
-  // Level 3: six lines.
+  // 3: six lines.
   [
     ['N?N=N', '?.?.?', 'N?N=N', '=.=.=', 'N?N=N'],
     [
@@ -97,7 +97,7 @@ export const SHAPES: string[][][] = [
       '..N?N=N',
     ],
   ],
-  // Level 4: seven or eight lines.
+  // 4: seven or eight lines.
   [
     [
       'N?N=N..',
@@ -120,8 +120,9 @@ export const SHAPES: string[][][] = [
   ],
 ];
 
-export const layoutsFor = (level: number): Layout[] =>
-  SHAPES[level - 1].flatMap((rows) => {
+// The layouts of a group of shapes, counting from 1.
+export const layoutsFor = (group: number): Layout[] =>
+  SHAPES[group - 1].flatMap((rows) => {
     const turned = transpose(rows);
     return turned.join() === rows.join()
       ? [parse(rows)]

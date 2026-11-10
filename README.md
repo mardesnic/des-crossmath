@@ -12,7 +12,7 @@ On your phone, open it and choose **Add to Home Screen** (Safari) or **Install a
 
 ## Features
 
-- 4 levels: + and − up to 10, + and − up to 20, then × up to 50, and all four operators up to 100 with some operators missing too
+- 5 levels: just + up to 10, + and − up to 10, + and − up to 20, then × up to 50, and all four operators up to 100 with some operators missing too
 - A new puzzle every time, and every one has exactly one answer that can be worked out one line at a time
 - Pick a tile, then the square it goes in (or the other way round); tap a filled square to take its tile back
 - A finished line turns green when it adds up and orange with a little wobble when it doesn't

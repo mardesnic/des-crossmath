@@ -5,10 +5,13 @@ export type Op = (typeof OPS)[number];
 export type Value = number | Op;
 export type Square = Value | '=' | null;
 
-export const LEVELS = [1, 2, 3, 4] as const;
+// Easiest first. Level 0 (just +) came later, below level 1, so saved
+// games and statistics keep their level.
+export const LEVELS = [0, 1, 2, 3, 4] as const;
 export type Level = (typeof LEVELS)[number];
 
 type Rules = {
+  shapes: number; // which grid shapes, from SHAPES in layouts.ts
   ops: Op[];
   must: Op[]; // operators every puzzle on the level has
   max: number; // the largest number, answers included
@@ -19,7 +22,18 @@ type Rules = {
 };
 
 export const RULES: Record<Level, Rules> = {
+  0: {
+    shapes: 1,
+    ops: ['+'],
+    must: [],
+    max: 10,
+    table: 0,
+    blanks: [2, 2],
+    opBlanks: 0,
+    onePerLine: true,
+  },
   1: {
+    shapes: 1,
     ops: ['+', '-'],
     must: [],
     max: 10,
@@ -29,6 +43,7 @@ export const RULES: Record<Level, Rules> = {
     onePerLine: true,
   },
   2: {
+    shapes: 2,
     ops: ['+', '-'],
     must: [],
     max: 20,
@@ -38,6 +53,7 @@ export const RULES: Record<Level, Rules> = {
     onePerLine: true,
   },
   3: {
+    shapes: 3,
     ops: ['+', '-', '×'],
     must: ['×'],
     max: 50,
@@ -47,6 +63,7 @@ export const RULES: Record<Level, Rules> = {
     onePerLine: false,
   },
   4: {
+    shapes: 4,
     ops: ['+', '-', '×', '÷'],
     must: ['×', '÷'],
     max: 100,
@@ -295,7 +312,7 @@ export function generate(level: Level, rng: Rng = Math.random): Puzzle {
   const table = Object.fromEntries(
     OPS.map((op) => [op, index(all[op])])
   ) as Record<Op, Index>;
-  const layouts = layoutsFor(level);
+  const layouts = layoutsFor(rules.shapes);
   for (let attempt = 0; ; attempt++) {
     // Never loop for ever on a phone; the tests check this is never hit.
     if (attempt > 500) throw new Error(`No puzzle for level ${level}`);

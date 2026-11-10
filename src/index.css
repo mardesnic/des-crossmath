@@ -450,6 +450,11 @@ h2 {
   transition: transform 0.1s;
 }
 
+/* An odd one out at the end gets the whole row. */
+.level:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
 .level:active {
   transform: scale(0.97);
 }
