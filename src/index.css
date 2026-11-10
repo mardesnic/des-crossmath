@@ -6,6 +6,11 @@
   --border: #e2e5ea;
   --accent: #d6336c;
   --on-accent: #ffffff;
+  --tint: #fbe4ec;
+  --right: #1f8a55;
+  --right-bg: #dcf3e5;
+  --wrong: #c2581b;
+  --wrong-bg: #fde6d6;
   --radius: 18px;
 
   color-scheme: light dark;
@@ -29,6 +34,11 @@
     --border: #2c3038;
     --accent: #f783ac;
     --on-accent: #3a0a1e;
+    --tint: #3a1c27;
+    --right: #6fd59c;
+    --right-bg: #173526;
+    --wrong: #f5a26b;
+    --wrong-bg: #3d2617;
   }
 }
 
@@ -78,7 +88,11 @@ button:disabled {
 }
 
 h1 {
-  font-size: 1.5rem;
+  /* Small enough on a narrow phone for the longer Croatian title. */
+  font-size: clamp(1.1rem, 5.2vw, 1.5rem);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -146,6 +160,318 @@ h2 {
   opacity: 0.4;
 }
 
+.header__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.button--secondary {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.button--icon {
+  display: grid;
+  place-items: center;
+  padding: 6px 10px;
+}
+
+.button--icon .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.status {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.status .level__ops {
+  font-size: 1.15rem;
+}
+
+/* The puzzle: a square grid of number, sign and empty squares. */
+
+.board {
+  --size: 5;
+  container-type: inline-size;
+  display: grid;
+  gap: 4px;
+  aspect-ratio: 1;
+  width: min(100%, calc(var(--size) * 72px));
+  margin: 4px auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sq {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: var(--sq-bg, none);
+  box-shadow: var(--sq-ring, none);
+  border-radius: 12px;
+  font-weight: 750;
+  font-size: calc(100cqw * var(--num) * 0.42);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+.sq__in {
+  display: block;
+  line-height: 1;
+}
+
+.sq--num {
+  --sq-bg: var(--surface);
+  --sq-ring: inset 0 0 0 1px var(--border);
+}
+
+.sq--sign {
+  color: var(--muted);
+  font-size: calc(100cqw * var(--num) * 0.55);
+  font-weight: 600;
+}
+
+.sq--blank {
+  --sq-bg: var(--tint);
+  color: var(--accent);
+  --sq-ring: inset 0 0 0 2px var(--accent);
+  border: 0;
+}
+
+.sq--blank:not(.sq--filled) {
+  --sq-bg: none;
+  --sq-ring: inset 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* A missing operator is a round hole, so it isn't mistaken for a number.
+   The whole square can still be tapped. */
+.sq.sq--op {
+  position: relative;
+  background: none;
+  box-shadow: none;
+  font-size: calc(100cqw * var(--num) * 0.5);
+}
+
+.sq--op::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100cqw * var(--sign));
+  height: calc(100cqw * var(--sign));
+  max-width: 100%;
+  max-height: 100%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--sq-bg, none);
+  box-shadow: var(--sq-ring, none);
+  transition: inherit;
+}
+
+.sq--op .sq__in {
+  position: relative;
+}
+
+/* Where the picked tile can go. */
+.sq--target:not(.sq--filled) {
+  --sq-bg: color-mix(in srgb, var(--accent) 12%, transparent);
+  --sq-ring: inset 0 0 0 2px var(--accent);
+}
+
+.sq--selected,
+.sq--selected:not(.sq--filled) {
+  --sq-bg: var(--accent);
+  color: var(--on-accent);
+  --sq-ring: none;
+}
+
+/* A full line that adds up turns green; one that doesn't, orange. */
+.sq--right.sq--num,
+.sq--right.sq--blank {
+  --sq-bg: var(--right-bg);
+  color: var(--right);
+  --sq-ring: inset 0 0 0 2px var(--right);
+}
+
+.sq--right.sq--num {
+  --sq-ring: inset 0 0 0 1px color-mix(in srgb, var(--right) 40%, transparent);
+}
+
+.sq--right.sq--sign {
+  color: var(--right);
+}
+
+.sq--wrong.sq--num,
+.sq--wrong.sq--blank {
+  --sq-bg: var(--wrong-bg);
+  color: var(--wrong);
+  --sq-ring: inset 0 0 0 1px color-mix(in srgb, var(--wrong) 40%, transparent);
+}
+
+.sq--wrong.sq--blank {
+  --sq-ring: inset 0 0 0 2px var(--wrong);
+}
+
+.sq--wrong.sq--sign {
+  color: var(--wrong);
+}
+
+.sq__in--wobble {
+  animation: wobble 0.5s ease-in-out;
+}
+
+@keyframes wobble {
+  20% {
+    transform: rotate(-12deg);
+  }
+  40% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(-6deg);
+  }
+  80% {
+    transform: rotate(3deg);
+  }
+}
+
+/* The tiles that go in the empty squares. */
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 4px 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tile {
+  min-width: 60px;
+  height: 60px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    inset 0 -4px 0 color-mix(in srgb, var(--accent) 35%, var(--border));
+  transition: transform 0.1s;
+}
+
+.tile--op {
+  color: var(--accent);
+  font-size: 1.9rem;
+}
+
+.tile--on {
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.tile--gap {
+  visibility: hidden;
+}
+
+.tools {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.tools .tool {
+  width: auto;
+  min-width: 96px;
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.solved {
+  text-align: center;
+  gap: 8px;
+  animation: pop 0.3s ease-out;
+}
+
+.solved h2 {
+  font-size: 1.5rem;
+}
+
+.solved__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* New game */
+
+.levels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.level {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 12px 20px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--bg);
+  transition: transform 0.1s;
+}
+
+.level:active {
+  transform: scale(0.97);
+}
+
+.level__ops {
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.level__range {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.level__pips {
+  display: flex;
+  gap: 5px;
+}
+
+.pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted) 30%, transparent);
+}
+
+.pip--on {
+  background: var(--accent);
+}
+
 .confetti {
   position: fixed;
   inset: 0;
@@ -153,6 +479,13 @@ h2 {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solved,
+  .sq__in--wobble {
+    animation: none !important;
+  }
 }
 
 /* Settings */
@@ -170,9 +503,14 @@ h2 {
   border-top: 1px solid var(--border);
 }
 
-.stats tbody tr:first-child th,
-.stats tbody tr:first-child td {
+.stats thead th {
   border-top: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stats tbody th .muted {
+  font-weight: 400;
 }
 
 .stats tbody th {
