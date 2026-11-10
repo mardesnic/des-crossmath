@@ -207,9 +207,11 @@ export default function App() {
         </>
       )}
 
-      <footer className='footer'>
-        <a href='https://github.com/mardesnic/des-crossmath'>{t.source}</a>
-      </footer>
+      {view === 'settings' && (
+        <footer className='footer'>
+          <a href='https://github.com/mardesnic/des-crossmath'>{t.source}</a>
+        </footer>
+      )}
       {celebrating && <Confetti onDone={() => setCelebrating(false)} />}
     </main>
   );
