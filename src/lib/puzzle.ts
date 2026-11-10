@@ -259,20 +259,31 @@ function chooseBlanks(
   }
   if (ops < rules.opBlanks) return undefined;
 
+  // Every line gets something to fill in: a line given in full is just
+  // reading, not a puzzle. So squares in lines with nothing missing yet
+  // go first.
+  const inOpenLine = (i: number) =>
+    lines.some((l) => l.includes(i) && !l.some((j) => blanks.includes(j)));
+  const clash = (i: number) =>
+    rules.onePerLine &&
+    lines.some(
+      (l) => l.includes(i) && l.some((j) => j !== i && blanks.includes(j))
+    );
   let numbers = 0;
-  const cells = kinds.flatMap((k, i) => (k === 'num' ? [i] : []));
-  for (const i of shuffle(cells, rng)) {
-    if (numbers === want) break;
-    if (
-      rules.onePerLine &&
-      lines.some(
-        (l) => l.includes(i) && l.some((j) => j !== i && blanks.includes(j))
-      )
-    )
-      continue;
-    if (tryAdd(i)) numbers++;
+  const cells = shuffle(
+    kinds.flatMap((k, i) => (k === 'num' ? [i] : [])),
+    rng
+  );
+  while (numbers < want) {
+    const next = cells
+      .filter((i) => !blanks.includes(i) && !clash(i))
+      .sort((a, b) => Number(inOpenLine(b)) - Number(inOpenLine(a)))
+      .find(tryAdd);
+    if (next === undefined) break;
+    numbers++;
   }
-  return numbers === want ? blanks : undefined;
+  const covered = lines.every((l) => l.some((i) => blanks.includes(i)));
+  return numbers === want && covered ? blanks : undefined;
 }
 
 const tileOrder = (v: Value) =>

@@ -117,6 +117,14 @@ describe('generated puzzles', () => {
         expect(numbers, where).toBeLessThanOrEqual(rules.blanks[1]);
         expect(p.tiles.length - numbers, where).toBe(rules.opBlanks);
 
+        // Every line has something to fill in.
+        for (const line of p.lines) {
+          expect(
+            line.some((i) => p.blanks.includes(i)),
+            where
+          ).toBe(true);
+        }
+
         // One answer, found without guessing.
         expect(solutions(p), where).toHaveLength(1);
         expect(canSolveStepByStep(p.solution, p.lines, p.blanks)).toBe(true);
