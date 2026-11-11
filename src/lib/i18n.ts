@@ -14,7 +14,7 @@ export function detectLang(): Lang {
 }
 
 const en = {
-  title: 'Cross Math',
+  title: 'Crossmath',
   settings: 'Settings',
   done: 'Done',
   cancel: 'Cancel',

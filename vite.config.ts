@@ -15,8 +15,8 @@ export default defineConfig({
         // A fixed id of its own, so a phone never mixes it up with an earlier
         // install or with the other games on this site.
         id: 'des-crossmath',
-        name: 'Cross Math',
-        short_name: 'Cross Math',
+        name: 'Crossmath',
+        short_name: 'Crossmath',
         description: 'A math crossword puzzle for kids that works offline',
         theme_color: '#d6336c',
         background_color: '#f4f5f7',
