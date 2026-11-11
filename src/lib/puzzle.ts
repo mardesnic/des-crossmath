@@ -7,7 +7,7 @@ export type Square = Value | '=' | null;
 
 // Easiest first. Level 0 (just +) came later, below level 1, so saved
 // games and statistics keep their level.
-export const LEVELS = [0, 1, 2, 3, 4] as const;
+export const LEVELS = [0, 1, 2, 3, 4, 5] as const;
 export type Level = (typeof LEVELS)[number];
 
 type Rules = {
@@ -17,8 +17,10 @@ type Rules = {
   max: number; // the largest number, answers included
   table: number; // × and ÷ stay inside this times table
   blanks: [number, number]; // how many numbers are missing, at least/most
-  opBlanks: number; // how many operators are missing
   onePerLine: boolean; // at most one missing number in a line
+  // Mostly hide the numbers you have to work out backwards, like the 56
+  // in `? ÷ 7 = 8`, rather than the answers.
+  backwards: boolean;
 };
 
 export const RULES: Record<Level, Rules> = {
@@ -29,8 +31,8 @@ export const RULES: Record<Level, Rules> = {
     max: 10,
     table: 0,
     blanks: [2, 2],
-    opBlanks: 0,
     onePerLine: true,
+    backwards: false,
   },
   1: {
     shapes: 1,
@@ -39,8 +41,8 @@ export const RULES: Record<Level, Rules> = {
     max: 10,
     table: 0,
     blanks: [2, 2],
-    opBlanks: 0,
     onePerLine: true,
+    backwards: false,
   },
   2: {
     shapes: 2,
@@ -49,8 +51,8 @@ export const RULES: Record<Level, Rules> = {
     max: 20,
     table: 0,
     blanks: [3, 4],
-    opBlanks: 0,
     onePerLine: true,
+    backwards: false,
   },
   3: {
     shapes: 3,
@@ -59,8 +61,8 @@ export const RULES: Record<Level, Rules> = {
     max: 50,
     table: 10,
     blanks: [4, 5],
-    opBlanks: 0,
     onePerLine: false,
+    backwards: false,
   },
   4: {
     shapes: 4,
@@ -69,8 +71,18 @@ export const RULES: Record<Level, Rules> = {
     max: 100,
     table: 10,
     blanks: [5, 6],
-    opBlanks: 2,
     onePerLine: false,
+    backwards: false,
+  },
+  5: {
+    shapes: 5,
+    ops: ['+', '-', '×', '÷'],
+    must: ['×', '÷'],
+    max: 100,
+    table: 10,
+    blanks: [7, 9],
+    onePerLine: false,
+    backwards: true,
   },
 };
 
@@ -80,7 +92,7 @@ export type Puzzle = {
   solution: Square[]; // by cell index, row by row
   lines: number[][]; // cell indices of each line: a, op, b, =, c
   blanks: number[]; // the squares to fill in
-  tiles: Value[]; // what goes in them, in order: numbers, then operators
+  tiles: Value[]; // what goes in them, smallest first
 };
 
 export type Rng = () => number;
@@ -210,8 +222,8 @@ function fill(
   return cells;
 }
 
-// The operators that make a line true. Missing operators should have
-// exactly one, or a child can't tell which goes where.
+// The operators that make a line true. A missing operator (only in games
+// saved before operators were always given) should have exactly one.
 export const opsThatFit = (a: number, b: number, c: number) =>
   OPS.filter((op) => calc(a, op, b) === c);
 
@@ -242,6 +254,21 @@ export function canSolveStepByStep(
   return open.size === 0;
 }
 
+// How hard a number is to work out: 0 when it is the answer of a sum
+// (found by just doing the sum), more when it is only ever on the left,
+// most when that's in a − or ÷ sum, where working back is harder.
+export function backwardness(
+  i: number,
+  lines: number[][],
+  solution: Square[]
+): number {
+  const mine = lines.filter((l) => l.includes(i));
+  if (mine.some((l) => l[4] === i)) return 0;
+  return mine.some((l) => solution[l[1]] === '-' || solution[l[1]] === '÷')
+    ? 2
+    : 1;
+}
+
 function chooseBlanks(
   layout: Layout,
   solution: Square[],
@@ -254,7 +281,7 @@ function chooseBlanks(
   // be more missing squares than lines.
   const want = Math.min(
     least + Math.floor(rng() * (most - least + 1)),
-    lines.length - rules.opBlanks
+    lines.length
   );
   const blanks: number[] = [];
 
@@ -264,17 +291,6 @@ function chooseBlanks(
     blanks.pop();
     return false;
   };
-
-  // Operators first, from lines where only one operator fits.
-  let ops = 0;
-  for (const line of shuffle(lines, rng)) {
-    if (ops === rules.opBlanks) break;
-    const [a, b, c] = [line[0], line[2], line[4]].map(
-      (i) => solution[i] as number
-    );
-    if (opsThatFit(a, b, c).length === 1 && tryAdd(line[1])) ops++;
-  }
-  if (ops < rules.opBlanks) return undefined;
 
   // Every line gets something to fill in: a line given in full is just
   // reading, not a puzzle. So squares in lines with nothing missing yet
@@ -291,10 +307,13 @@ function chooseBlanks(
     kinds.flatMap((k, i) => (k === 'num' ? [i] : [])),
     rng
   );
+  const score = (i: number) =>
+    Number(inOpenLine(i)) * 10 +
+    (rules.backwards ? backwardness(i, lines, solution) : 0);
   while (numbers < want) {
     const next = cells
       .filter((i) => !blanks.includes(i) && !clash(i))
-      .sort((a, b) => Number(inOpenLine(b)) - Number(inOpenLine(a)))
+      .sort((a, b) => score(b) - score(a))
       .find(tryAdd);
     if (next === undefined) break;
     numbers++;

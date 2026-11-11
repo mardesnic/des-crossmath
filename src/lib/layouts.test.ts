@@ -30,7 +30,7 @@ describe('layouts', () => {
   });
 
   it('has valid shapes with the right number of lines on every level', () => {
-    const lineCounts = [[2], [4], [6], [7, 8]];
+    const lineCounts = [[2], [4], [6], [7, 8], [10]];
     SHAPES.forEach((shapes, k) => {
       for (const layout of layoutsFor(k + 1)) {
         expect(lineCounts[k]).toContain(layout.lines.length);

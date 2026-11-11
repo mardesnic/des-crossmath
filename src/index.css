@@ -399,6 +399,42 @@ h2 {
   visibility: hidden;
 }
 
+/* Expert mode's number pad: two rows of six keys. */
+.pad {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+}
+
+.pad .tile {
+  min-width: 0;
+  height: 54px;
+  padding: 0;
+}
+
+.pad .tile:disabled {
+  opacity: 0.45;
+}
+
+.tile--key {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.tile--key .icon {
+  width: 26px;
+  height: 26px;
+}
+
+.pad__hint {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .tools {
   display: flex;
   justify-content: center;

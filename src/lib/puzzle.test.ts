@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  backwardness,
   canSolveStepByStep,
   generate,
   LEVELS,
@@ -112,10 +113,10 @@ describe('generated puzzles', () => {
         // The tiles are exactly what's missing.
         const missing = p.blanks.map((i) => p.solution[i] as Value);
         expect([...p.tiles].sort(), where).toEqual(missing.sort());
-        const numbers = p.tiles.filter((t) => typeof t === 'number').length;
-        expect(numbers, where).toBeGreaterThanOrEqual(rules.blanks[0]);
-        expect(numbers, where).toBeLessThanOrEqual(rules.blanks[1]);
-        expect(p.tiles.length - numbers, where).toBe(rules.opBlanks);
+        // Only numbers are missing; the operators are always given.
+        for (const t of p.tiles) expect(typeof t, where).toBe('number');
+        expect(p.tiles.length, where).toBeGreaterThanOrEqual(rules.blanks[0]);
+        expect(p.tiles.length, where).toBeLessThanOrEqual(rules.blanks[1]);
 
         // Every line has something to fill in.
         for (const line of p.lines) {
@@ -128,6 +129,12 @@ describe('generated puzzles', () => {
         // One answer, found without guessing.
         expect(solutions(p), where).toHaveLength(1);
         expect(canSolveStepByStep(p.solution, p.lines, p.blanks)).toBe(true);
+        if (rules.backwards) {
+          const back = p.blanks.filter(
+            (i) => backwardness(i, p.lines, p.solution) > 0
+          );
+          expect(back.length / p.blanks.length, where).toBeGreaterThan(0.6);
+        }
         if (rules.onePerLine) {
           for (const line of p.lines) {
             const n = line.filter((i) => p.blanks.includes(i)).length;
@@ -142,6 +149,18 @@ describe('generated puzzles', () => {
     const start = performance.now();
     for (const level of LEVELS) for (let n = 0; n < 20; n++) generate(level);
     expect((performance.now() - start) / (LEVELS.length * 20)).toBeLessThan(25);
+  });
+});
+
+describe('backwardness', () => {
+  // 8 ÷ 2 = 4
+  const solution: Square[] = [8, '÷', 2, '=', 4];
+  const lines = [[0, 1, 2, 3, 4]];
+  it('is 0 for an answer, more on the left, most in − and ÷', () => {
+    expect(backwardness(4, lines, solution)).toBe(0);
+    expect(backwardness(0, lines, solution)).toBe(2);
+    const plus: Square[] = [8, '+', 2, '=', 10];
+    expect(backwardness(0, lines, plus)).toBe(1);
   });
 });
 

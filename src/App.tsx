@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Board, Tiles, type Wobble } from './components/Board';
+import { Board, NumberPad, Tiles, type Wobble } from './components/Board';
 import { Confetti } from './components/Confetti';
 import { Icon } from './components/Icon';
 import { LevelName, NewGame, SettingsView } from './components/Menu';
 import {
+  backspace,
   fits,
   initialStats,
   lineStates,
@@ -13,7 +14,9 @@ import {
   recordWin,
   startOver,
   take,
+  typeDigit,
   undo,
+  upgrade,
   type Game,
   type Stats,
 } from './lib/game';
@@ -31,7 +34,8 @@ type Selection = { tile?: number; square?: number };
 export default function App() {
   // Keys are prefixed: other apps on the same GitHub Pages origin share
   // this storage.
-  const [{ game }, setStore] = useStoredState<{ game?: Game }>('crossmath', {});
+  const [store, setStore] = useStoredState<{ game?: Game }>('crossmath', {});
+  const game = useMemo(() => store.game && upgrade(store.game), [store.game]);
   const [settings, setSettings] = useStoredState<Settings>(
     'crossmath-settings',
     initialSettings
@@ -70,30 +74,70 @@ export default function App() {
     setView('play');
   };
 
-  // Applies a move. A line that is now full and wrong gives a little shake.
-  const update = (next: Game, moved?: number) => {
+  const { expert } = settings;
+  // In expert mode the picked square is the one being typed in.
+  const editing = expert ? selection.square : undefined;
+
+  // A full line through `i` that is wrong gives a little shake.
+  const shake = (g: Game, i?: number) => {
+    const states = lineStates(g);
+    const wrong = g.lines.filter(
+      (l, k) => states[k] === 'wrong' && i !== undefined && l.includes(i)
+    );
+    setWobble(
+      wrong.length ? { cells: wrong.flat(), key: Date.now() } : undefined
+    );
+  };
+
+  // Applies a move.
+  const update = (next: Game, moved?: number, keep?: Selection) => {
     if (!game || next === game) return;
-    setSelection({});
+    setSelection(keep ?? {});
     if (next.solved && !game.solved) {
       setStats(recordWin(stats, next));
       setCelebrating(true);
       cheer();
     }
-    const states = lineStates(next);
-    const wrong = next.lines.filter(
-      (l, k) =>
-        states[k] === 'wrong' && moved !== undefined && l.includes(moved)
-    );
-    setWobble(
-      wrong.length ? { cells: wrong.flat(), key: Date.now() } : undefined
-    );
+    if (keep) setWobble(undefined);
+    else shake(next, moved);
     setStore({ game: next });
   };
+
+  // Expert mode: a square is judged once you're done typing in it.
+  const select = (next: Selection) => {
+    if (game && editing !== undefined && next.square !== editing)
+      shake(game, editing);
+    setSelection(next);
+  };
+
+  const onDigit = (d: number) => {
+    if (game && editing !== undefined)
+      update(typeDigit(game, d, editing), editing, { square: editing });
+  };
+  const onErase = () => {
+    if (game && editing !== undefined)
+      update(backspace(game, editing), editing, { square: editing });
+  };
+
+  // A keyboard works for typing too.
+  useEffect(() => {
+    if (!expert || view !== 'play') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (/^[0-9]$/.test(e.key)) onDigit(Number(e.key));
+      else if (e.key === 'Backspace') onErase();
+      else if (e.key === 'Enter' || e.key === 'Escape') select({});
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   const onTile = (tile: number) => {
     if (!game) return;
     const { square } = selection;
-    if (square !== undefined && fits(game, tile, square)) {
+    if (square !== undefined && fits(game, game.tiles[tile], square)) {
       update(place(game, tile, square), square);
     } else {
       setSelection(selection.tile === tile ? {} : { tile });
@@ -102,10 +146,14 @@ export default function App() {
 
   const onSquare = (i: number) => {
     if (!game) return;
+    if (expert) {
+      select(selection.square === i ? {} : { square: i });
+      return;
+    }
     const { tile } = selection;
-    if (tile !== undefined && fits(game, tile, i)) {
+    if (tile !== undefined && fits(game, game.tiles[tile], i)) {
       update(place(game, tile, i), i);
-    } else if (game.placed[i] !== null) {
+    } else if (game.entries[i] !== null) {
       // Tapping a filled square takes its tile back, ready for another.
       update(take(game, i));
       setSelection({ square: i });
@@ -166,7 +214,7 @@ export default function App() {
 
           <Board
             game={game}
-            states={lineStates(game)}
+            states={lineStates(game, editing)}
             selectedTile={selection.tile}
             selectedSquare={selection.square}
             wobble={wobble}
@@ -191,12 +239,22 @@ export default function App() {
             </section>
           ) : (
             <>
-              <Tiles
-                game={game}
-                selected={selection.tile}
-                onTile={onTile}
-                t={t}
-              />
+              {expert ? (
+                <NumberPad
+                  active={editing !== undefined}
+                  onDigit={onDigit}
+                  onErase={onErase}
+                  onDone={() => select({})}
+                  t={t}
+                />
+              ) : (
+                <Tiles
+                  game={game}
+                  selected={selection.tile}
+                  onTile={onTile}
+                  t={t}
+                />
+              )}
               <div className='tools'>
                 <button
                   className='tool'
@@ -209,7 +267,7 @@ export default function App() {
                 <button
                   className='tool'
                   onClick={() => update(startOver(game))}
-                  disabled={game.placed.every((p) => p === null)}
+                  disabled={game.entries.every((p) => p === null)}
                 >
                   <Icon name='clear' />
                   {t.startOver}

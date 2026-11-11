@@ -1,9 +1,11 @@
 import type { CSSProperties } from 'react';
 
+import { Icon } from './Icon';
 import {
   fits,
   isBlank,
   squareAt,
+  used,
   type Game,
   type LineState,
 } from '../lib/game';
@@ -98,7 +100,10 @@ export function Board({
         if (typeof given !== 'number') classes.push('sq--op');
         if (value !== null) classes.push('sq--filled');
         if (i === selectedSquare) classes.push('sq--selected');
-        if (selectedTile !== undefined && fits(game, selectedTile, i))
+        if (
+          selectedTile !== undefined &&
+          fits(game, game.tiles[selectedTile], i)
+        )
           classes.push('sq--target');
         return (
           <button
@@ -127,12 +132,12 @@ export function Tiles({
   onTile: (tile: number) => void;
   t: Strings;
 }) {
+  const on = used(game);
   return (
     <div className='tiles' aria-label={t.pickTile}>
       {game.tiles.map((v, k) => {
         // A placed tile leaves a gap, so the others don't jump about.
-        if (game.placed.includes(k))
-          return <span key={k} className='tile tile--gap' />;
+        if (on[k]) return <span key={k} className='tile tile--gap' />;
         const classes = ['tile'];
         if (typeof v !== 'number') classes.push('tile--op');
         if (k === selected) classes.push('tile--on');
@@ -148,6 +153,55 @@ export function Tiles({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+
+// Expert mode: type each number instead of picking a tile.
+export function NumberPad({
+  active,
+  onDigit,
+  onErase,
+  onDone,
+  t,
+}: {
+  active: boolean; // a square is picked to type in
+  onDigit: (d: number) => void;
+  onErase: () => void;
+  onDone: () => void;
+  t: Strings;
+}) {
+  return (
+    <div className='tiles pad' role='group' aria-label={t.numberPad}>
+      {!active && <p className='pad__hint'>{t.pickSquare}</p>}
+      {DIGITS.map((d) => (
+        <button
+          key={d}
+          className='tile'
+          onClick={() => onDigit(d)}
+          disabled={!active}
+        >
+          {d}
+        </button>
+      ))}
+      <button
+        className='tile tile--key'
+        onClick={onErase}
+        disabled={!active}
+        aria-label={t.erase}
+      >
+        <Icon name='erase' />
+      </button>
+      <button
+        className='tile tile--key'
+        onClick={onDone}
+        disabled={!active}
+        aria-label={t.done}
+      >
+        <Icon name='check' />
+      </button>
     </div>
   );
 }

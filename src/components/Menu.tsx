@@ -29,12 +29,19 @@ function Segmented<T>({
   );
 }
 
+// How far a level's numbers go, and whether it's on the big grid.
+const range = (level: Level, t: Strings) =>
+  [
+    t.upTo(RULES[level].max),
+    ...(RULES[level].shapes >= 5 ? [t.bigGrid] : []),
+  ].join(', ');
+
 // What a level has: its operators and how far the numbers go.
 export function LevelName({ level, t }: { level: Level; t: Strings }) {
   return (
     <>
       <span className='level__ops'>{RULES[level].ops.map(show).join(' ')}</span>
-      <span className='level__range'>{t.upTo(RULES[level].max)}</span>
+      <span className='level__range'>{range(level, t)}</span>
     </>
   );
 }
@@ -55,7 +62,7 @@ export function NewGame({
             key={level}
             className='level'
             onClick={() => onStart(level)}
-            aria-label={`${t.level(n + 1)}: ${RULES[level].ops.map((o) => t.ops[o]).join(', ')}, ${t.upTo(RULES[level].max)}`}
+            aria-label={`${t.level(n + 1)}: ${RULES[level].ops.map((o) => t.ops[o]).join(', ')}, ${range(level, t)}`}
           >
             <span className='level__pips' aria-hidden='true'>
               {LEVELS.map((_, k) => (
@@ -107,6 +114,18 @@ export function SettingsView({
             onChange={(sound) => setSettings({ ...settings, sound })}
           />
         </div>
+
+        <div className='field'>
+          <span>
+            {t.expert} <span className='muted'>{t.expertHint}</span>
+          </span>
+          <Segmented
+            options={[true, false]}
+            value={settings.expert}
+            label={(on) => (on ? t.on : t.off)}
+            onChange={(expert) => setSettings({ ...settings, expert })}
+          />
+        </div>
       </section>
 
       <section className='card'>
@@ -124,8 +143,7 @@ export function SettingsView({
                 <th>
                   {t.level(n + 1)}{' '}
                   <span className='muted'>
-                    {RULES[level].ops.map(show).join(' ')},{' '}
-                    {t.upTo(RULES[level].max)}
+                    {RULES[level].ops.map(show).join(' ')}, {range(level, t)}
                   </span>
                 </th>
                 <td>{stats.solved[level] ?? 0}</td>

@@ -12,10 +12,11 @@ On your phone, open it and choose **Add to Home Screen** (Safari) or **Install a
 
 ## Features
 
-- 5 levels: just + up to 10, + and − up to 10, + and − up to 20, then × up to 50, and all four operators up to 100 with some operators missing too
+- 6 levels: just + up to 10, + and − up to 10, + and − up to 20, then × up to 50, all four operators up to 100, and a big grid where most missing numbers have to be worked out backwards
 - A new puzzle every time, and every one has exactly one answer that can be worked out one line at a time
 - Pick a tile, then the square it goes in (or the other way round); tap a filled square to take its tile back
 - A finished line turns green when it adds up and orange with a little wobble when it doesn't
+- Expert mode in Settings: type the numbers on a number pad instead of picking tiles
 - Undo and Start over
 - Confetti when the puzzle is done, and a count of solved puzzles per level
 - Picks up where you left off after a reload
