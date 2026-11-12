@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { Board, NumberPad, Tiles, type Wobble } from './components/Board';
+import { HomeLink } from './components/HomeLink';
 import { Confetti } from './components/Confetti';
 import { Icon } from './components/Icon';
 import { LevelName, NewGame, SettingsView } from './components/Menu';
@@ -168,7 +169,10 @@ export default function App() {
   return (
     <main className='app'>
       <header className='header'>
-        <h1>{t.title}</h1>
+        <div className='header__title'>
+          <HomeLink label={t.allGames} />
+          <h1>{t.title}</h1>
+        </div>
         <div className='header__actions'>
           {view === 'play' ? (
             <>
