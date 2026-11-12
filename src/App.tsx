@@ -25,6 +25,7 @@ import { generate, type Level } from './lib/puzzle';
 import { initialSettings, type Settings } from './lib/settings';
 import { popMenu, pushMenu, useBackButton } from './lib/use-back-button';
 import { useCheer } from './lib/use-cheer';
+import { useSettings } from './lib/use-settings';
 import { useStoredState } from './lib/use-stored-state';
 import { useWakeLock } from './lib/use-wake-lock';
 
@@ -36,7 +37,7 @@ export default function App() {
   // this storage.
   const [store, setStore] = useStoredState<{ game?: Game }>('crossmath', {});
   const game = useMemo(() => store.game && upgrade(store.game), [store.game]);
-  const [settings, setSettings] = useStoredState<Settings>(
+  const [settings, setSettings] = useSettings<Settings>(
     'crossmath-settings',
     initialSettings
   );
