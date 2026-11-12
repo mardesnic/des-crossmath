@@ -589,6 +589,7 @@ h2 {
 }
 
 .footer {
+  flex-wrap: wrap;
   display: flex;
   justify-content: center;
   padding-top: 4px;
@@ -598,6 +599,13 @@ h2 {
 .footer a {
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+.footer__version {
+  flex-basis: 100%;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 
 .field {
