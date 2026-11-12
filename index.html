@@ -21,6 +21,53 @@
       media="(prefers-color-scheme: dark)"
     />
     <title>Crossmath</title>
+    <script>
+      // If the game's script can't load (an offline copy saved half way
+      // through an update), drop this game's offline copy and load it
+      // fresh, once. Saved games are in localStorage and are kept.
+      addEventListener(
+        'error',
+        function (e) {
+          var el = e.target;
+          if (!el || el.tagName !== 'SCRIPT' || !('serviceWorker' in navigator))
+            return;
+          if (sessionStorage.getItem('crossmath-reset')) return;
+          sessionStorage.setItem('crossmath-reset', '1');
+          var base = location.origin + '/des-crossmath/';
+          navigator.serviceWorker
+            .getRegistrations()
+            .then(function (rs) {
+              return Promise.all(
+                rs
+                  .filter(function (r) {
+                    return r.scope === base;
+                  })
+                  .map(function (r) {
+                    return r.unregister();
+                  })
+              );
+            })
+            .then(function () {
+              return caches.keys();
+            })
+            .then(function (keys) {
+              return Promise.all(
+                keys
+                  .filter(function (k) {
+                    return k.indexOf(base) !== -1;
+                  })
+                  .map(function (k) {
+                    return caches.delete(k);
+                  })
+              );
+            })
+            .then(function () {
+              location.reload();
+            });
+        },
+        true
+      );
+    </script>
     <script type="module" crossorigin src="/des-crossmath/assets/index-_vP9OldX.js"></script>
     <link rel="stylesheet" crossorigin href="/des-crossmath/assets/index-D8KbozO-.css">
   <link rel="manifest" href="/des-crossmath/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/des-crossmath/registerSW.js"></script>
