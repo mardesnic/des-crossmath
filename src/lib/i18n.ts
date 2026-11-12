@@ -46,6 +46,7 @@ const en = {
   off: 'Off',
   statistics: 'Statistics',
   solved: 'Solved',
+  allGames: 'All games',
   source: 'Source',
 };
 
@@ -82,6 +83,7 @@ const hr: Strings = {
   off: 'Isključeno',
   statistics: 'Statistika',
   solved: 'Riješeno',
+  allGames: 'Sve igre',
   source: 'Izvorni kod',
 };
 

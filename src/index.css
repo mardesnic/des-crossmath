@@ -573,6 +573,7 @@ h2 {
   display: flex;
   justify-content: center;
   padding-top: 4px;
+  gap: 20px;
 }
 
 .footer a {
