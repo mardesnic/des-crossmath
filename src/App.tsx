@@ -4,7 +4,7 @@ import { Board, NumberPad, Tiles, type Wobble } from './components/Board';
 import { HomeLink } from './components/HomeLink';
 import { Confetti } from './components/Confetti';
 import { Icon } from './components/Icon';
-import { LevelName, NewGame, SettingsView } from './components/Menu';
+import { NewGame, SettingsView } from './components/Menu';
 import {
   backspace,
   fits,
@@ -219,10 +219,6 @@ export default function App() {
 
       {view === 'play' && game && (
         <>
-          <div className='status'>
-            <LevelName level={game.level} t={t} />
-          </div>
-
           <Board
             game={game}
             states={lineStates(game, editing)}

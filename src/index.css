@@ -214,18 +214,6 @@ h2 {
   height: 20px;
 }
 
-.status {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 10px;
-  font-weight: 700;
-}
-
-.status .level__ops {
-  font-size: 1.15rem;
-}
-
 /* The puzzle: a square grid of number, sign and empty squares. */
 
 .board {
@@ -385,9 +373,9 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   margin-top: 6px;
-  padding: 16px 12px;
+  padding: 12px 10px;
   border-radius: var(--radius);
   background: var(--tray);
   box-shadow: inset 0 0 0 1px var(--tray-edge);
@@ -396,14 +384,16 @@ h2 {
 }
 
 .tile {
-  min-width: 60px;
-  height: 60px;
-  padding: 0 10px;
+  /* Small enough for five in a row on a narrow phone, so the big grid's
+     tiles take two rows and Undo stays on screen. */
+  min-width: 52px;
+  height: 52px;
+  padding: 0 8px;
   border: 0;
   border-radius: 14px;
   background: var(--surface);
   color: var(--text);
-  font-size: 1.6rem;
+  font-size: 1.45rem;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
   box-shadow:
@@ -414,7 +404,7 @@ h2 {
 
 .tile--op {
   color: var(--accent);
-  font-size: 1.9rem;
+  font-size: 1.7rem;
 }
 
 .tile--on {
