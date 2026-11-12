@@ -52,7 +52,7 @@ const en = {
 export type Strings = typeof en;
 
 const hr: Strings = {
-  title: 'Računska križaljka',
+  title: 'Križmatka',
   settings: 'Postavke',
   done: 'Gotovo',
   cancel: 'Odustani',
