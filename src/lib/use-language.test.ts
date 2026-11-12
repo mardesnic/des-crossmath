@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseLanguage } from './use-settings';
+import { parseLanguage } from './use-language';
 
 describe('shared language', () => {
   it('reads a saved language', () => {
