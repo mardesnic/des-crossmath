@@ -81,6 +81,8 @@ export function SettingsView({
   settings,
   language,
   setLanguage,
+  sound,
+  setSound,
   setSettings,
   stats,
   t,
@@ -88,6 +90,8 @@ export function SettingsView({
   settings: Settings;
   language: Language;
   setLanguage: (l: Language) => void;
+  sound: boolean;
+  setSound: (on: boolean) => void;
   setSettings: (s: Settings) => void;
   stats: Stats;
   t: Strings;
@@ -113,9 +117,9 @@ export function SettingsView({
           <span>{t.sound}</span>
           <Segmented
             options={[true, false]}
-            value={settings.sound}
+            value={sound}
             label={(on) => (on ? t.on : t.off)}
-            onChange={(sound) => setSettings({ ...settings, sound })}
+            onChange={setSound}
           />
         </div>
 

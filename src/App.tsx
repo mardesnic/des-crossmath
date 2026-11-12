@@ -25,7 +25,7 @@ import { generate, type Level } from './lib/puzzle';
 import { initialSettings, type Settings } from './lib/settings';
 import { popMenu, pushMenu, useBackButton } from './lib/use-back-button';
 import { useCheer } from './lib/use-cheer';
-import { useLanguage } from './lib/use-language';
+import { useLanguage, useSound } from './lib/use-shared-settings';
 import { useStoredState } from './lib/use-stored-state';
 import { useWakeLock } from './lib/use-wake-lock';
 
@@ -59,7 +59,8 @@ export default function App() {
   const [wobble, setWobble] = useState<Wobble>();
   const [celebrating, setCelebrating] = useState(false);
   useWakeLock();
-  const cheer = useCheer(settings.sound);
+  const [sound, setSound] = useSound();
+  const cheer = useCheer(sound);
 
   const [language, setLanguage] = useLanguage();
   const lang = language === 'auto' ? detectLang() : language;
@@ -203,6 +204,8 @@ export default function App() {
         <SettingsView
           language={language}
           setLanguage={setLanguage}
+          sound={sound}
+          setSound={setSound}
           settings={settings}
           setSettings={setSettings}
           stats={stats}
