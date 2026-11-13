@@ -232,13 +232,13 @@ export default function App() {
 
           {game.solved ? (
             <section className='card solved'>
-              <h2>{t.wellDone}</h2>
+              <h2>{t.solved}</h2>
               <div className='solved__actions'>
                 <button
                   className='button'
                   onClick={() => start(nextLevel(game.level))}
                 >
-                  {t.nextPuzzle}
+                  {t.next}
                 </button>
                 <button
                   className='button button--secondary'

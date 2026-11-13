@@ -138,7 +138,7 @@ export function SettingsView({
           <thead>
             <tr>
               <th />
-              <th>{t.solved}</th>
+              <th>{t.solvedColumn}</th>
             </tr>
           </thead>
           <tbody>
