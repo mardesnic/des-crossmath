@@ -10,6 +10,12 @@ export type Square = Value | '=' | null;
 export const LEVELS = [0, 1, 2, 3, 4, 5] as const;
 export type Level = (typeof LEVELS)[number];
 
+// The levels you can pick. Level 4 (up to 100 on the smaller grid) is no
+// longer one of them; a game saved on it still plays, and its next puzzle
+// is on level 5.
+export const PICKABLE = [0, 1, 2, 3, 5] as const;
+export const nextLevel = (level: Level): Level => (level === 4 ? 5 : level);
+
 type Rules = {
   shapes: number; // which grid shapes, from SHAPES in layouts.ts
   ops: Op[];

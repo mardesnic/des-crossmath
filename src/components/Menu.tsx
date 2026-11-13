@@ -1,6 +1,6 @@
 import type { Stats } from '../lib/game';
 import { LANG_NAMES, LANGS, type Language, type Strings } from '../lib/i18n';
-import { LEVELS, RULES, show, type Level } from '../lib/puzzle';
+import { PICKABLE, RULES, show, type Level } from '../lib/puzzle';
 import type { Settings } from '../lib/settings';
 
 function Segmented<T>({
@@ -29,12 +29,8 @@ function Segmented<T>({
   );
 }
 
-// How far a level's numbers go, and whether it's on the big grid.
-const range = (level: Level, t: Strings) =>
-  [
-    t.upTo(RULES[level].max),
-    ...(RULES[level].shapes >= 5 ? [t.bigGrid] : []),
-  ].join(', ');
+// How far a level's numbers go.
+const range = (level: Level, t: Strings) => t.upTo(RULES[level].max);
 
 // What a level has: its operators and how far the numbers go.
 export function LevelName({ level, t }: { level: Level; t: Strings }) {
@@ -57,7 +53,7 @@ export function NewGame({
     <section className='card'>
       <h2>{t.newGame}</h2>
       <div className='levels'>
-        {LEVELS.map((level, n) => (
+        {PICKABLE.map((level, n) => (
           <button
             key={level}
             className='level'
@@ -65,7 +61,7 @@ export function NewGame({
             aria-label={`${t.level(n + 1)}: ${RULES[level].ops.map((o) => t.ops[o]).join(', ')}, ${range(level, t)}`}
           >
             <span className='level__pips' aria-hidden='true'>
-              {LEVELS.map((_, k) => (
+              {PICKABLE.map((_, k) => (
                 <span key={k} className={k <= n ? 'pip pip--on' : 'pip'} />
               ))}
             </span>
@@ -146,7 +142,7 @@ export function SettingsView({
             </tr>
           </thead>
           <tbody>
-            {LEVELS.map((level, n) => (
+            {PICKABLE.map((level, n) => (
               <tr key={level}>
                 <th>
                   {t.level(n + 1)}{' '}
@@ -154,7 +150,10 @@ export function SettingsView({
                     {RULES[level].ops.map(show).join(' ')}, {range(level, t)}
                   </span>
                 </th>
-                <td>{stats.solved[level] ?? 0}</td>
+                <td>
+                  {(stats.solved[level] ?? 0) +
+                    (level === 5 ? (stats.solved[4] ?? 0) : 0)}
+                </td>
               </tr>
             ))}
           </tbody>

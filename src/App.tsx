@@ -22,7 +22,7 @@ import {
   type Stats,
 } from './lib/game';
 import { STRINGS, detectLang } from './lib/i18n';
-import { generate, type Level } from './lib/puzzle';
+import { generate, nextLevel, type Level } from './lib/puzzle';
 import { initialSettings, type Settings } from './lib/settings';
 import { popMenu, pushMenu, useBackButton } from './lib/use-back-button';
 import { useCheer } from './lib/use-cheer';
@@ -234,7 +234,10 @@ export default function App() {
             <section className='card solved'>
               <h2>{t.wellDone}</h2>
               <div className='solved__actions'>
-                <button className='button' onClick={() => start(game.level)}>
+                <button
+                  className='button'
+                  onClick={() => start(nextLevel(game.level))}
+                >
                   {t.nextPuzzle}
                 </button>
                 <button

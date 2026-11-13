@@ -26,8 +26,6 @@ const en = {
   changeLevel: 'Change level',
   // The numbers each level goes up to.
   upTo: (n: number) => `up to ${n}`,
-  // The hardest level's board, to tell it apart from the one before.
-  bigGrid: 'big grid',
   level: (n: number) => `Level ${n}`,
   square: (row: number, col: number) => `Row ${row}, column ${col}`,
   empty: 'empty',
@@ -65,7 +63,6 @@ const hr: Strings = {
   nextPuzzle: 'Sljedeća križaljka',
   changeLevel: 'Promijeni razinu',
   upTo: (n: number) => `do ${n}`,
-  bigGrid: 'velika mreža',
   level: (n: number) => `Razina ${n}`,
   square: (row: number, col: number) => `Red ${row}, stupac ${col}`,
   empty: 'prazno',
