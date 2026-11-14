@@ -230,7 +230,7 @@ export default function App() {
             t={t}
           />
 
-          {game.solved ? (
+          {game.solved && (
             <section className='card solved'>
               <h2>{t.solved}</h2>
               <div className='solved__actions'>
@@ -248,7 +248,11 @@ export default function App() {
                 </button>
               </div>
             </section>
-          ) : (
+          )}
+          <div
+            className={game.solved ? 'under under--hidden' : 'under'}
+            inert={!!game.solved}
+          >
             <>
               {expert ? (
                 <NumberPad
@@ -285,7 +289,7 @@ export default function App() {
                 </button>
               </div>
             </>
-          )}
+          </div>
         </>
       )}
 
